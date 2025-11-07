@@ -1,0 +1,136 @@
+/* ========================================
+  PAGE-SPECIFIC: TESTIMONIAL SECTION
+  ======================================== */
+.testimonial {
+  padding: 90px 0;
+}
+
+.why-us-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 32px;
+  margin-bottom: 48px;
+}
+.why-us-card {
+  text-align: center;
+}
+.why-us-card svg {
+  color: var(--accent-color);
+  margin-bottom: 16px;
+}
+.why-us-card h3 {
+  font-family: var(--font-heading);
+  font-size: 1.4rem;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+.why-us-card p {
+  color: var(--text-muted);
+  font-size: 1.1rem;
+}
+
+.testimonial-intro {
+  text-align: center;
+  font-size: 1.2rem;
+  color: var(--text-muted);
+  margin-bottom: 32px;
+  font-style: italic;
+}
+
+.testimonial-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 32px;
+}
+
+.testimonial-card {
+  background: var(--dark-bg-color);
+  color: var(--text-light);
+  padding: 32px;
+  border-radius: 8px;
+
+  /* ========================================
+    ✅ 1. EFEK SHADOW SUDAH ADA DI SINI
+       Ini adalah bayangan (shadow) awal kartu Anda.
+    ========================================
+  */
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15); 
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transform-style: preserve-3d;
+
+  /* ========================================
+    ✅ 2. KUNCI UNTUK POSISI YANG SAMA (ALIGNMENT)
+       Ini mengubah kartu menjadi kolom flex.
+    ========================================
+  */
+  display: flex;
+  flex-direction: column;
+}
+
+.testimonial-card:hover {
+  transform: translateY(-5px);
+  /* Ini adalah shadow yang lebih besar saat di-hover */
+  box-shadow: 0 12px 25px rgba(0, 0, 0, 0.25); 
+}
+
+.testimonial-header {
+  /* ... (ini menjaga Title & Bintang tetap di atas) ... */
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 16px;
+  padding-bottom: 8px; 
+}
+.testimonial-header h4 {
+  /* ... */
+  margin: 0; 
+}
+
+.testimonial-text {
+  color: #ccc;
+  margin-bottom: 24px;
+  font-style: italic;
+  font-size: 1.1rem;
+
+  /* ========================================
+    ✅ 3. KUNCI UNTUK POSISI YANG SAMA (ALIGNMENT)
+       Ini memerintahkan "Content" untuk mengambil
+       semua ruang kosong yang tersisa.
+    ========================================
+  */
+  flex-grow: 1; 
+  margin-top: 0; 
+}
+
+.testimonial-author {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+
+  /* ========================================
+    ✅ 4. KUNCI UNTUK POSISI YANG SAMA (ALIGNMENT)
+       Ini "mendorong" nama penulis ke bagian
+       paling Bawah kartu.
+    ========================================
+  */
+  margin-top: auto; 
+}
+
+.avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.testimonial-author h5 {
+  font-size: 1rem;
+  margin-bottom: 2px;
+  color: var(--text-light);
+  margin-top: 0; /* Pastikan tidak ada margin-top default */
+}
+.testimonial-author p {
+  color: #999;
+  font-size: 0.875rem;
+  margin: 0; /* Pastikan tidak ada margin default */
+}

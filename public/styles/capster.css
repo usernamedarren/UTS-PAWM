@@ -1,0 +1,83 @@
+/* ========================================
+  PAGE-SPECIFIC: CAPSTER SECTION
+  ======================================== */
+.capster {
+  height: 100vh;
+  padding: 100px;
+  background: var(--dark-bg-color);
+}
+
+.capster .section-header h2,
+.capster .section-header p {
+  color: var(--text-light);
+}
+
+.capster .section-header p {
+  color: #ccc;
+  font-size: 1.5rem;
+}
+
+.capster-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 32px;
+  justify-content: center;
+}
+
+.capster-card {
+  height: 100%;
+  padding-top: 15px;
+  background: var(--card-bg);
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.capster-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+}
+
+.capster-card figure {
+  width: 100%;
+  height: 250px;
+  overflow: hidden;
+}
+.capster-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top;
+}
+
+.capster-info {
+  padding: 24px;
+}
+.capster-info h4 {
+  font-family: var(--font-heading);
+  font-size: 1.3rem;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+.capster-info h4 span {
+  font-weight: 400;
+  font-size: 1rem;
+  color: var(--text-muted);
+}
+.capster-info p {
+  color: var(--text-muted);
+  font-size: 0.95rem;
+  margin-bottom: 16px;
+}
+.capster-social {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-dark);
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+.capster-social svg {
+  color: var(--accent-color);
+}

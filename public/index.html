@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Brocode Barbershop - Stay Sharp and Keep Handsome. Layanan grooming profesional di Bandung.">
+  <meta name="keywords" content="barbershop, brocode, potong rambut, grooming, bandung, jatinangor">
+  <meta name="author" content="Brocode">
+  <title>Brocode Barbershop - Stay Sharp and Keep Handsome</title>
+  <link rel="icon" type="image/png" href="/assets/favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Lato:wght@400;700&display=swap" rel="stylesheet">
+  <!-- Styles (loaded as CSS, not ES module imports) -->
+  <link rel="stylesheet" href="/styles/global.css">
+  <link rel="stylesheet" href="/styles/layout.css">
+  <link rel="stylesheet" href="/styles/home.css">
+  <link rel="stylesheet" href="/styles/about.css">
+  <link rel="stylesheet" href="/styles/services.css">
+  <link rel="stylesheet" href="/styles/capster.css">
+  <link rel="stylesheet" href="/styles/testimonial.css">
+  <link rel="stylesheet" href="/styles/book.css">
+</head>
+<body>
+
+  <div id="page-loader" class="page-loader">
+    <div class="loader-spinner"></div>
+  </div>
+
+  <a href="#main" class="skip-link">Skip to main content</a>
+
+  <div id="navbar-placeholder"></div>
+
+  <main id="main">
+    <div id="home-placeholder"></div>
+    <div id="about-placeholder"></div>
+    <div id="services-placeholder"></div>
+    <div id="capster-placeholder"></div>
+    <div id="testimonial-placeholder"></div>
+    <div id="book-placeholder"></div>
+  </main>
+
+  <div id="footer-placeholder"></div>
+  
+  <div id="modals-placeholder"></div>
+
+  <script type="module" src="/main.js"></script>
+  <script type="module">
+    // Expose Supabase public keys to client (anon key is safe)
+    window.__SUPABASE_URL = (window.__SUPABASE_URL || '%SUPABASE_URL%');
+    window.__SUPABASE_ANON_KEY = (window.__SUPABASE_ANON_KEY || '%SUPABASE_ANON_KEY%');
+  </script>
+</body>
+</html>

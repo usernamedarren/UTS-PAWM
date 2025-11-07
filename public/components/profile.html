@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Profil • Brocode Barbershop</title>
+  <style>
+    :root {
+      --bg: #f5f5f5;
+      --card: #DEC7A6;
+      --text: #333;
+      --accent: #DEC7A6;
+      --green: #5cb85c;
+      --red: #dc3545;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: var(--bg);
+      overflow-x: hidden;
+    }
+
+    /* HEADER */
+    .header {
+      background: #1A1A1A;
+      color: white;
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+    }
+    .header img { height: 40px; max-width: 150px; object-fit: contain; }
+
+    .logout {
+      background: #1a1a1a;
+      color: var(--accent);
+      border: 3px solid var(--accent);
+      padding: 12px 32px;
+      border-radius: 8px;
+      font-weight: 900;
+      font-size: 1rem;
+      text-transform: uppercase;
+      box-shadow: 0 5px 0 #000;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+    .logout:hover {
+      background: var(--accent);
+      color: #1a1a1a;
+    }
+
+    .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+    h1 { text-align: center; color: #333; margin: 30px 0; font-size: 2.2rem; }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 24px;
+      padding-bottom: 120px;
+    }
+
+    .card {
+      background: var(--card);
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+      transition: 0.3s;
+      display: flex;
+      flex-direction: column;
+      min-height: 260px;
+    }
+    .card:hover { transform: translateY(-6px); box-shadow: 0 12px 24px rgba(0,0,0,0.2); }
+
+    .card h3 {
+      text-align: center;
+      font-size: 1.25rem;
+      border-bottom: 3px solid #1a1a1a;
+      padding-bottom: 8px;
+      margin: 0 0 16px;
+      font-weight: 900;
+    }
+
+    .card p {
+      margin: 6px 0;
+      font-size: 0.95rem;
+      color: #333;
+    }
+    .card p strong {
+      color: #1a1a1a;
+      display: inline-block;
+      min-width: 90px;
+    }
+
+    .status {
+      margin-top: auto;
+      padding: 10px;
+      border-radius: 6px;
+      text-align: center;
+      font-weight: bold;
+      color: white;
+    }
+    .status.accepted { background: var(--green); }
+    .status.rejected { background: var(--red); }
+
+    .empty-state { text-align: center; padding: 80px 20px; color: #999; }
+    .empty-state h2 { color: #666; font-size: 1.8rem; }
+
+    @media (max-width: 768px) {
+      .grid { grid-template-columns: 1fr; gap: 16px; }
+      .card { min-height: 240px; }
+      .logout { padding: 8px 20px; font-size: 0.85rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <div class="header">
+    <img src="/logo.png" alt="Brocode" onerror="this.style.display='none'">
+    <button class="logout" onclick="handleLogout()">LOGOUT</button>
+  </div>
+
+  <div class="container">
+    <h1>RESERVASI SAYA</h1>
+    <div id="grid" class="grid"></div>
+    <div id="empty" class="empty-state" style="display:none;">
+      <h2>Belum Ada Reservasi</h2>
+      <p>Kamu belum pernah melakukan reservasi, bro!</p>
+    </div>
+  </div>
+
+  <script>
+    // CEK LOGIN USER
+    const user = JSON.parse(localStorage.getItem('brocode_user') || 'null');
+    if (!user) {
+      alert('Silakan login dulu sebagai pengguna!');
+      location.href = '/src/index.html';
+    }
+
+    // AMBIL DATA RESERVASI
+    const bookings = JSON.parse(localStorage.getItem('brocode_bookings') || '[]');
+    const myBookings = bookings.filter(b => b.name === user.name);
+
+    const grid = document.getElementById('grid');
+    const empty = document.getElementById('empty');
+
+    function render() {
+      grid.innerHTML = '';
+      if (myBookings.length === 0) {
+        empty.style.display = 'block';
+        return;
+      }
+      empty.style.display = 'none';
+
+      myBookings.forEach(b => {
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.innerHTML = `
+          <h3>${b.datetime} — ${b.time}</h3>
+          <p><strong>Capster:</strong> ${b.capster}</p>
+          <p><strong>Layanan:</strong> ${b.service}</p>
+          ${b.message ? `<p><strong>Catatan:</strong> ${b.message}</p>` : ''}
+          <div class="status ${b.verified ? 'accepted' : 'rejected'}">
+            ${b.verified ? '✓ DITERIMA' : '✗ DITOLAK'}
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    function handleLogout() {
+      if (confirm('Yakin mau logout?')) {
+        localStorage.removeItem('brocode_user');
+        location.href = '/src/index.html';
+      }
+    }
+
+    render();
+  </script>
+</body>
+</html>

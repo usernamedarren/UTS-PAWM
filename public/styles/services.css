@@ -1,0 +1,111 @@
+.services {
+  padding: 80px 0;
+  background-color: var(--card-bg);
+}
+
+.section-header p {
+  font-size: 1.3rem;
+}
+
+/* DITAMBAHKAN: Wrapper untuk setiap kategori */
+.service-category-wrapper {
+  margin-top: 48px;
+}
+.service-category-wrapper:first-of-type {
+  margin-top: 0;
+}
+
+/* Style untuk judul (Hair Treatment, dll) */
+.service-category {
+  font-family: var(--font-heading);
+  font-size: 1.7rem;
+  font-weight: 700;
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--text-dark);
+}
+.service-category svg {
+  color: var(--accent-color);
+}
+
+/* Style untuk 2 KARTU UNGGULAN di halaman utama */
+.services-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 24px;
+}
+/* Di layar besar, paksa 2 kolom agar seimbang */
+@media (min-width: 768px) {
+  .services-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.service-card {
+  background: var(--card-bg);
+  padding: 24px;
+  border-radius: 8px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+  border: 1px solid var(--border-color);
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  
+  pointer-events: none;
+}
+
+.service-card:hover {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+  transform: translateY(-4px);
+}
+
+.service-card h4 {
+  font-family: var(--font-heading);
+  font-size: 1.4rem;
+  font-weight: 700;
+  margin-bottom: 8px;
+  color: var(--text-dark);
+}
+
+.service-card p {
+  color: var(--text-muted);
+  font-size: 1.1rem;
+  margin-bottom: 16px;
+}
+
+.service-card .price {
+  font-family: var(--font-heading);
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--accent-color);
+  text-align: right;
+  margin-top: auto;
+}
+
+/* Tombol "Lihat Pricelist" */
+.services-cta-container {
+  text-align: center;
+  margin-top: 32px;
+}
+
+/* (Ripple effect tetap sama) */
+.card-ripple {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(198, 169, 110, 0.2);
+  transform: scale(0);
+  animation: ripple 0.6s ease-out;
+  pointer-events: none;
+}
+
+@keyframes ripple {
+  to {
+    transform: scale(4);
+    opacity: 0;
+  }
+}

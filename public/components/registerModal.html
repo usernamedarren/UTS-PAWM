@@ -1,0 +1,42 @@
+<div id="success-notification" class="success-notification" role="alert" aria-live="assertive">
+    <div class="notification-content">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+        Pesan Anda telah berhasil terkirim!
+    </div>
+</div>
+
+<div id="register-modal-overlay" class="modal-overlay">
+    <div id="register-modal-container" class="modal-container" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+        <button id="close-modal-btn" class="modal-close-btn" aria-label="Close modal">&times;</button>
+
+        <img src="/logo-inverse.png" alt="Brocode Logo" class="modal-logo">         
+        <h2 id="modal-title" class="visually-hidden">Register</h2>
+        <form id="register-form">
+            <div class="form-group">
+                <label for="register-name">Nama Lengkap</label>
+                <input type="text" id="register-name" name="name" required>
+            </div>
+            <div class="form-group">
+                <label for="register-email">Email</label>
+                <input type="email" id="register-email" name="email" required>
+            </div>
+            <div class="form-group">
+                <label for="register-password">Password</label>
+                <input type="password" id="register-password" name="password" required>
+            </div>
+            <div class="form-group">
+                <label for="register-confirm-password">Konfirmasi Password</label>
+                <input type="password" id="register-confirm-password" name="confirmPassword" required>
+            </div>
+
+            <button type="submit" class="btn btn-warning modal-register-btn">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><line x1="20" y1="8" x2="20" y2="14"></line><line x1="23" y1="11" x2="17" y2="11"></line></svg>
+                DAFTAR
+            </button>
+        </form>
+
+        <p class="modal-signup-link">
+            Sudah punya akun? <a href="loginModal.html" id="login-link">Masuk di sini</a>
+        </p>
+    </div>
+</div>

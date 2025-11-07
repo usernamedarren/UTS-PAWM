@@ -1,0 +1,34 @@
+<div id="success-notification" class="success-notification" role="alert" aria-live="assertive">
+    <div class="notification-content">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+        Pesan Anda telah berhasil terkirim!
+    </div>
+</div>
+
+<div id="login-modal-overlay" class="modal-overlay">
+    <div id="login-modal-container" class="modal-container" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+        <button id="close-modal-btn" class="modal-close-btn" aria-label="Close modal">&times;</button>
+
+        <img src="/logo-inverse.png" alt="Brocode Logo" class="modal-logo">         
+        <h2 id="modal-title" class="visually-hidden">Login</h2>
+        <form id="login-form">
+            <div class="form-group">
+                <label for="login-email">Email</label>
+                <input type="email" id="login-email" name="email" required>
+            </div>
+            <div class="form-group">
+                <label for="login-password">Password</label>
+                <input type="password" id="login-password" name="password" required>
+            </div>
+
+            <button type="submit" class="btn btn-warning modal-login-btn">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path><polyline points="10 17 15 12 10 7"></polyline><line x1="15" y1="12" x2="3" y2="12"></line></svg>
+                LOGIN
+            </button>
+        </form>
+
+        <p class="modal-signup-link">
+            Belum punya akun? <a href="registerModal.html" id="signup-link">Daftar di sini</a>
+        </p>
+    </div>
+</div>

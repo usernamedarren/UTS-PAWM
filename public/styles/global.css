@@ -1,0 +1,236 @@
+/* ========================================
+   GLOBAL RULES, RESETS, TYPOGRAPHY
+   ======================================== */
+
+/* Reset & Root Variables */
+:root {
+  --bg-color: #F8F5F0;
+  --dark-bg-color: #1A1A1A;
+  --card-bg: #FFFFFF;
+  --dark-card-bg: #2A2A2A;
+  --text-dark: #1A1A1A;
+  --text-light: #FFFFFF;
+  --text-muted: #555;
+  --accent-color: #C6A96E;
+  --accent-color-darker: #AB8F5C;
+  --border-color: #E0D9CD;
+  --border-dark-color: #3A3A3A;
+  --error-color: #ef4444;
+
+  --font-heading: 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-body: 'Lato', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-body);
+  line-height: 1.6;
+  color: var(--text-dark);
+  background-color: var(--bg-color);
+  overflow-x: hidden;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+/* ========================================
+   Buttons
+   ======================================== */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 32px;
+  border-radius: 4px;
+  text-decoration: none;
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+  cursor: pointer;
+}
+
+.btn-primary {
+  background: var(--accent-color);
+  color: var(--dark-bg-color);
+  border-color: var(--accent-color);
+}
+.btn-primary:hover {
+  background: var(--accent-color-darker);
+  border-color: var(--accent-color-darker);
+}
+
+.btn-outline {
+  background: transparent;
+  color: var(--accent-color);
+  border-color: var(--accent-color);
+}
+.btn-outline:hover {
+  background: var(--accent-color);
+  color: var(--dark-bg-color);
+}
+
+.btn-outline-light {
+  background: transparent;
+  color: var(--text-light);
+  border-color: var(--text-light);
+}
+.btn-outline-light:hover {
+  background: var(--text-light);
+  color: var(--text-dark);
+}
+
+/* ========================================
+   Section Header
+   ======================================== */
+.section-header {
+  text-align: center;
+  margin-bottom: 48px;
+}
+
+.section-header h2 {
+  font-family: var(--font-heading);
+  font-size: 2.5rem;
+  font-weight: 800;
+  margin-bottom: 16px;
+  color: var(--text-dark);
+}
+
+.section-header p {
+  color: var(--text-muted);
+  max-width: 700px;
+  margin: 0 auto;
+  font-size: 1.1rem;
+}
+
+/* ========================================
+   Scroll Animations & Form Errors
+   ======================================== */
+.fade-in-up,
+.fade-in-left,
+.fade-in-right {
+  opacity: 0;
+  transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.fade-in-up { transform: translateY(40px); }
+.fade-in-left { transform: translateX(-40px); }
+.fade-in-right { transform: translateX(40px); }
+
+.fade-in-up.animated,
+.fade-in-left.animated,
+.fade-in-right.animated {
+  opacity: 1;
+  transform: translate(0, 0);
+}
+
+/* Form Error States */
+.form-group input.error,
+.form-group textarea.error,
+.form-group select.error {
+  border-color: var(--error-color);
+  animation: shake 0.5s;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+  20%, 40%, 60%, 80% { transform: translateX(5px); }
+}
+
+.error-message {
+  color: var(--error-color);
+  font-size: 0.875rem;
+  margin-top: 4px;
+  display: none;
+}
+
+/* ========================================
+   Accessibility & Utilities
+   ======================================== */
+
+/* Accessibility */
+.skip-link {
+  position: absolute;
+  top: -60px;
+  left: 0;
+  background: var(--accent-color);
+  color: var(--dark-bg-color);
+  padding: 10px 20px;
+  text-decoration: none;
+  border-radius: 0 0 4px 0;
+  z-index: 10001;
+  font-weight: 600;
+  transition: top 0.3s ease;
+}
+.skip-link:focus {
+  top: 0;
+}
+
+.visually-hidden {
+  border: 0;
+  clip: rect(0 0 0 0);
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  padding: 0;
+  position: absolute;
+  width: 1px;
+}
+
+/* Keyboard Navigation Focus */
+body.keyboard-nav *:focus {
+  outline: 2px solid var(--accent-color);
+  outline-offset: 2px;
+}
+body:not(.keyboard-nav) *:focus {
+  outline: none;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+}
+::-webkit-scrollbar-track {
+  background: #eee;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--accent-color);
+  border-radius: 6px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent-color-darker);
+}
+
+/* Selection Color */
+::selection {
+  background: var(--accent-color);
+  color: var(--dark-bg-color);
+}
+::-moz-selection {
+  background: var(--accent-color);
+  color: var(--dark-bg-color);
+}
+
+/* ========================================
+  Utilities (Tambahan)
+  ======================================== */
+.section-divider {
+  border: none;
+  height: 1px;
+  background-color: var(--border-color); /* Garis halus warna border */
+  margin: 0 auto; /* Hapus margin atas/bawah default dari <hr> */
+}
