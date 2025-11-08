@@ -1,6 +1,8 @@
 import express from 'express'
 // Import DB so it initializes on server start (connects to Railway when DATABASE_URL is present)
 import db from './db.js'
+// Diagnostic: log key env presence to help debug startup exits (no secrets leaked)
+console.log('[BOOT] SUPABASE_URL present?', !!process.env.SUPABASE_URL, 'SUPABASE_ANON_KEY present?', !!process.env.SUPABASE_ANON_KEY)
 import path, { dirname } from 'path'
 import fs from 'fs'
 import { fileURLToPath } from 'url'
@@ -200,9 +202,13 @@ for (const sec of sections) {
 
 // In Vercel serverless, we don't start a listener. Vercel sets VERCEL=1.
 if (!process.env.VERCEL) {
-    app.listen(PORT, () => {
-        console.log(`Server has started on port: ${PORT}`)
-    })
+    try {
+        app.listen(PORT, () => {
+            console.log(`Server has started on port: ${PORT}`)
+        })
+    } catch (e) {
+        console.error('[BOOT] Failed to start server:', e)
+    }
 }
 
 // Setelah semua server-side rendering route dipasang, baru serve static assets.

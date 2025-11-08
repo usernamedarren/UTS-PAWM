@@ -109,3 +109,24 @@
     opacity: 0;
   }
 }
+
+/* Responsive: services section */
+@media (max-width: 992px) {
+  .services { padding: 70px 0; }
+  .service-category { font-size: 1.5rem; }
+}
+@media (max-width: 768px) {
+  .services { padding: 60px 0; }
+  .service-category { font-size: 1.35rem; }
+  .service-card { padding: 20px; }
+  .service-card h4 { font-size: 1.25rem; }
+  .service-card p { font-size: 1rem; }
+  .service-card .price { font-size: 1.15rem; }
+}
+@media (max-width: 480px) {
+  .service-category { font-size: 1.2rem; }
+  .service-card { padding: 18px; }
+  .service-card h4 { font-size: 1.15rem; }
+  .service-card p { font-size: 0.95rem; }
+  .service-card .price { font-size: 1.05rem; }
+}

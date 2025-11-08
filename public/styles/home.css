@@ -73,3 +73,13 @@
     text-align: center;
   }
 }
+@media (max-width: 560px) {
+  .hero-content { margin: 20px 0 0 20px; }
+  .hero h1 { font-size: 2.2rem; }
+  .hero p { font-size: 1rem; }
+  .hero-buttons .btn { font-size: 0.95rem; padding: 12px 20px; }
+}
+@media (max-width: 420px) {
+  .hero h1 { font-size: 1.9rem; line-height: 1.25; }
+  .hero p { font-size: 0.95rem; }
+}

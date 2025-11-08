@@ -153,6 +153,14 @@
     }
 }
 
+/* Compact navbar spacing on small screens */
+@media (max-width: 768px) {
+  .nav-wrapper { padding: 0 12px; height: 64px; }
+  .logo { max-width: 110px; }
+  .logo img { height: 36px; }
+  .mobile-menu { gap: 12px; padding: 16px; }
+}
+
 
 /* ========================================
   Footer

@@ -134,3 +134,13 @@
   font-size: 0.875rem;
   margin: 0; /* Pastikan tidak ada margin default */
 }
+
+/* Responsive: testimonial section */
+@media (max-width: 992px) {
+  .testimonial { padding: 70px 0; }
+}
+@media (max-width: 768px) {
+  .testimonial { padding: 60px 0; }
+  .testimonial-grid { gap: 20px; }
+  .testimonial-card { padding: 24px; }
+}

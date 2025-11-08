@@ -221,6 +221,18 @@
     font-size: 2rem;
   }
 }
+@media (max-width: 560px) {
+  .book { padding: 90px 0; }
+  .book-form-wrapper { padding: 20px 20px; }
+  .book-form-wrapper h2 { font-size: 1.8rem; }
+  .book-info-wrapper { padding: 24px; }
+}
+@media (max-width: 420px) {
+  .book { padding: 80px 0; }
+  .book-form-wrapper h2 { font-size: 1.6rem; }
+  .form-desc { font-size: 0.95rem; }
+  .book-info-wrapper h4 { font-size: 1.3rem; }
+}
 
 /* ========================================
   BARU: Custom Select Dropdown (Layanan & Capster)
