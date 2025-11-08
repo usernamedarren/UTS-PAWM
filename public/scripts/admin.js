@@ -1,5 +1,4 @@
-// Admin page JS: render bookings from localStorage, support verify and drag-to-delete
-// NEW ADMIN DATA SOURCE USING BACKEND API (replaces localStorage dummy seed)
+// Admin page: load appointments from Supabase via backend API
 (function(){
   // Require admin login
   if (localStorage.getItem('brocode_admin_logged') !== 'true') {
@@ -23,10 +22,27 @@
   const trash = document.getElementById('trash');
   let dragged = null;
   let bookings = [];
+  let capsterMap = {};
+
+  // Hide loader when ready
+  function hideLoader(){
+    const l = document.getElementById('loader');
+    if (!l) return; l.style.opacity='0'; setTimeout(()=>l.remove(), 500);
+  }
+
+  async function fetchCapsters(){
+    try{
+      const resp = await fetch('/api/capster');
+      const body = await resp.json();
+      if(!resp.ok) throw new Error(body.error||'Gagal memuat capster');
+      const rows = Array.isArray(body.data)? body.data : [];
+      capsterMap = rows.reduce((m,c)=>{ if(c && c.id!=null) m[String(c.id)] = c.name || `Capster #${c.id}`; return m; }, {});
+    }catch(err){ console.warn('Capster map error:', err.message); capsterMap = {}; }
+  }
 
   async function fetchBookings(){
     try {
-      const resp = await fetch('/api/appointments');
+      const resp = await fetch('/api/appointment');
       const body = await resp.json();
       if (!resp.ok) throw new Error(body.error||'Gagal mengambil data');
       bookings = Array.isArray(body.data) ? body.data : [];
@@ -37,14 +53,16 @@
       render();
       alert('Gagal memuat daftar reservasi dari server.');
     }
+    hideLoader();
   }
 
   async function toggleVerify(idx){
     const b = bookings[idx]; if(!b) return;
-    const newStatus = b.status && b.status.toLowerCase().startsWith('acc') ? 'rejected' : 'accepted';
+    const newStatus = 'approved';
     try {
-      const resp = await fetch(`/api/appointments/${b.id}/status`, { method:'PATCH', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ status: newStatus }) });
-      const body = await resp.json(); if(!resp.ok) throw new Error(body.error||'Gagal update status');
+      const resp = await fetch(`/api/appointment/${b.id}/status`, { method:'PATCH', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ status: newStatus }) });
+      let body = null; try { body = await resp.json(); } catch(_) {}
+      if(!resp.ok) throw new Error((body && body.error) || 'Gagal update status');
       b.status = newStatus; render();
     } catch(err){ alert(err.message||'Gagal mengubah status'); }
   }
@@ -53,16 +71,27 @@
     const b = bookings[idx]; if(!b) return;
     if(!confirm(`Hapus reservasi dari ${b.name}?`)) return;
     try {
-      const resp = await fetch(`/api/appointments/${b.id}`, { method:'DELETE' });
+      const resp = await fetch(`/api/appointment/${b.id}`, { method:'DELETE' });
       if(!resp.ok && resp.status!==204) throw new Error('Gagal hapus reservasi');
       bookings.splice(idx,1); render();
     } catch(err){ alert(err.message||'Gagal menghapus reservasi'); }
   }
 
+  function normalizeStatus(v){
+    const s = String(v||'pending').trim().toLowerCase();
+    if (s.startsWith('acc')) return 'approved';
+    if (s.startsWith('app')) return 'approved';
+    if (s.startsWith('rej')) return 'not approved';
+    if (s.startsWith('not')) return 'not approved';
+    return 'pending';
+  }
+
+  function isApproved(b){ return normalizeStatus(b.status) === 'approved'; }
+
   function statusBadge(b){
-    const s=(b.status||'pending').toLowerCase();
-    if (s.startsWith('acc')) return '✓';
-    if (s.startsWith('rej')) return '✗';
+    const s = normalizeStatus(b.status);
+    if (s === 'approved') return '✓';
+    if (s === 'not approved') return '✗';
     return '•';
   }
 
@@ -73,157 +102,60 @@
     if(emptyEl) emptyEl.style.display='none';
     bookings.forEach((b,i)=>{
       const card=document.createElement('div');
-      const verified = b.status && b.status.toLowerCase().startsWith('acc');
+  const verified = isApproved(b);
       card.className='card '+(verified?'verified':'');
       card.draggable=true; card.dataset.index=i;
-  card.innerHTML=`<div class="card-content">\n          <h3>${b.date||b.datetime||'-'} — ${b.time||'-'} ${statusBadge(b)}</h3>\n          <p><strong>Nama:</strong> ${b.name||'-'}</p>\n          <p><strong>Telepon:</strong> ${b.phone||'-'}</p>\n          <p><strong>Email:</strong> ${b.email||'-'}</p>\n          <p><strong>Capster:</strong> ${b.capster||b.capsterId||'-'}</p>\n          <p><strong>Layanan:</strong> ${b.service||'-'}</p>\n          ${b.notes?`<p><strong>Catatan:</strong> ${b.notes}</p>`:''}\n        </div>\n        <div class="verify-container">\n          <button class="verify-btn" data-idx="${i}" title="${verified?'Tandai Ditolak':'Tandai Diterima'}">${verified?'✓':'?'}</button>\n        </div>`;
+      const capName = (b.capsterId!=null) ? (capsterMap[String(b.capsterId)] || `#${b.capsterId}`) : '-';
+  card.innerHTML=`<div class="card-content">\n          <h3>${b.date||'-'} — ${b.time||'-'} ${statusBadge(b)}</h3>\n          <p><strong>Nama:</strong> ${b.name||'-'}</p>\n          <p><strong>Telepon:</strong> ${b.phone||'-'}</p>\n          <p><strong>Email:</strong> ${b.email||'-'}</p>\n          <p><strong>Capster:</strong> ${capName}</p>\n          <p><strong>Layanan:</strong> ${b.service||'-'}</p>\n          ${b.notes?`<p><strong>Catatan:</strong> ${b.notes}</p>`:''}\n        </div>\n        <div class="verify-container">\n          <label class="approve-toggle" title="Setujui">
+    <input type="checkbox" class="approve-checkbox" data-idx="${i}" ${verified?'checked':''} />
+    <span class="checkmark"></span>
+    <span class="label-text">${verified?'Approved':'Approve'}</span>
+      </label>\n        </div>`;
       card.addEventListener('dragstart',()=>{ dragged=card; card.classList.add('dragging'); });
       card.addEventListener('dragend',()=>{ card.classList.remove('dragging'); dragged=null; });
       grid.appendChild(card);
     });
-    grid.querySelectorAll('.verify-btn').forEach(btn=>btn.addEventListener('click',()=>toggleVerify(Number(btn.dataset.idx))));
+    grid.querySelectorAll('.approve-checkbox').forEach(cb=>{
+      cb.addEventListener('change', async ()=>{
+        const idx = Number(cb.dataset.idx);
+        const b = bookings[idx]; if(!b) return;
+        // Hanya izinkan perubahan ke approved lewat checkbox; unapprove via trash
+        if (!isApproved(b)){
+          const prev = cb.checked;
+          cb.disabled = true;
+          try{ await toggleVerify(idx); } finally { cb.disabled=false; }
+          // sinkronkan dengan data terbaru
+          cb.checked = isApproved(bookings[idx]);
+        } else {
+          // Sudah approved; jaga tetap checked (unapprove via trash)
+          cb.checked = true;
+        }
+      });
+    });
   }
 
   if (trash){
     trash.addEventListener('dragover',e=>{ e.preventDefault(); trash.classList.add('drag-over'); });
     trash.addEventListener('dragleave',()=>trash.classList.remove('drag-over'));
-    trash.addEventListener('drop',e=>{ e.preventDefault(); trash.classList.remove('drag-over'); const d=document.querySelector('.card.dragging'); if(!d) return; deleteBooking(Number(d.dataset.index)); });
+    trash.addEventListener('drop',async e=>{ 
+      e.preventDefault();
+      trash.classList.remove('drag-over');
+      const d=document.querySelector('.card.dragging'); if(!d) return; 
+      const idx = Number(d.dataset.index);
+      const b = bookings[idx]; if(!b) return;
+      try {
+        const resp = await fetch(`/api/appointment/${b.id}/status`, { method:'PATCH', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ status: 'not approved' }) });
+        let body = null; try { body = await resp.json(); } catch(_) {}
+        if(!resp.ok) throw new Error((body && body.error) || 'Gagal set not approved');
+        b.status = 'not approved';
+        render();
+      } catch(err){ alert(err.message||'Gagal mengubah status'); }
+    });
   }
 
-  // Initial fetch
-  fetchBookings();
+  // Initial fetch (ensure capsterMap ready for name mapping)
+  (async()=>{ await fetchCapsters(); await fetchBookings(); })();
   // Periodic refresh
   setInterval(fetchBookings, 30000);
 })();
-// Admin page JS (moved from inline <script> in components/admin.html)
-// Responsibilities:
-// - enforce simple admin check (localStorage)
-// - render bookings from localStorage
-// - drag & drop delete, verify toggle, and edit modal wiring
-
-(function(){
-  // === AUTO GENERATE 10 DUMMY RESERVASI KALO BELUM ADA ===
-  let bookings = [];
-  
-  if (bookings.length === 0) {
-    const dummyNames = ["Rizky", "Fajar", "Dika", "Bayu", "Gilang", "Adit", "Rafi", "Yoga", "Hendra", "Fikri"];
-    const services = ["Classic Cut", "Fade + Skin", "Buzz Cut", "Crew Cut", "Pompadour", "Undercut", "Slick Back"];
-    const capsters = ["Bro Asep", "Bro Dedi", "Bro Udin", "Bro Jaja", "Siapa saja"];
-    const times = ["10:00", "11:30", "14:00", "15:30", "17:00", "19:00"];
-    bookings = dummyNames.map((name, i) => ({
-      name: name + " Pratama",
-      phone: "08" + Math.floor(100000000 + Math.random() * 900000000),
-      service: services[Math.floor(Math.random() * services.length)],
-      capster: capsters[Math.floor(Math.random() * capsters.length)],
-      datetime: "2025-11-" + String(8 + i).padStart(2, '0'),
-      time: times[i % times.length],
-      message: i % 3 === 0 ? "Minta fade rendah + skin, jangan lupa part tengah!" : (i % 4 === 0 ? "Bawa anak, anak umur 5 tahun" : ""),
-      verified: i % 3 === 0
-    }));
-    localStorage.setItem('brocode_bookings', JSON.stringify(bookings));
-    console.log("10 DUMMY RESERVASI TELAH DIBUAT!");
-  }
-
-  // HILANGKAN LOADER jika ada
-  setTimeout(() => {
-    const loader = document.getElementById('loader');
-    if (loader) {
-      loader.style.opacity = '0';
-      setTimeout(() => loader.remove(), 800);
-    }
-  }, 800);
-
-  // CEK LOGIN ADMIN
-  if (localStorage.getItem('brocode_admin_logged') !== 'true') {
-    alert('Login dulu sebagai admin!');
-    location.href = '/';
-  }
-
-  const grid = document.getElementById('grid');
-  const trash = document.getElementById('trash');
-  const emptyState = document.getElementById('empty');
-  let dragged = null;
-
-  function render() {
-    if (!grid) return;
-    grid.innerHTML = '';
-    if (bookings.length === 0) {
-      if (emptyState) emptyState.style.display = 'block';
-      return;
-    }
-    if (emptyState) emptyState.style.display = 'none';
-
-    bookings.forEach((b, i) => {
-      const card = document.createElement('div');
-      card.className = `card ${b.verified ? 'verified' : ''}`;
-      card.draggable = true;
-      card.dataset.index = i;
-
-      card.innerHTML = `
-        <div class="card-content">
-            <h3>${b.datetime} — ${b.time}</h3>
-            <p><strong>Nama:</strong> ${b.name}</p>
-            <p><strong>Telepon:</strong> ${b.phone}</p>
-            <p><strong>Email:</strong> ${b.email || '-'}</p>
-            <p><strong>Capster:</strong> ${b.capster}</p>
-            <p><strong>Layanan:</strong> ${b.service}</p>
-            ${b.message ? `<p><strong>Catatan:</strong> ${b.message}</p>` : ''}
-        </div>
-        <div class="verify-container">
-            <div class="verify-btn" data-idx="${i}" title="${b.verified ? '✓ Sudah Diverifikasi' : 'Klik untuk Verifikasi'}">
-            ${b.verified ? '✓' : ''}
-            </div>
-        </div>
-      `;
-
-      // Drag handlers
-      card.addEventListener('dragstart', (e) => { dragged = card; card.classList.add('dragging'); e.dataTransfer.effectAllowed = 'move'; });
-      card.addEventListener('dragend', () => { if (card) card.classList.remove('dragging'); dragged = null; });
-
-      grid.appendChild(card);
-    });
-  }
-
-  // Toggle verify
-  window.toggleVerify = (i) => {
-    bookings[i].verified = !bookings[i].verified;
-    localStorage.setItem('brocode_bookings', JSON.stringify(bookings));
-    render();
-  };
-
-  // Trash drag & drop
-  if (trash) {
-    trash.addEventListener('dragover', e => { e.preventDefault(); trash.classList.add('drag-over'); });
-    trash.addEventListener('dragleave', () => trash.classList.remove('drag-over'));
-    trash.addEventListener('drop', e => {
-      e.preventDefault(); trash.classList.remove('drag-over');
-      if (dragged) {
-        const idx = dragged.dataset.index;
-        const booking = bookings[idx];
-        if (confirm(`Hapus reservasi dari ${booking.name}?\n\nLayanan: ${booking.service}\nTanggal: ${booking.datetime} - ${booking.time}`)) {
-          bookings.splice(idx, 1);
-          localStorage.setItem('brocode_bookings', JSON.stringify(bookings));
-          render();
-          console.log('🗑️ Reservasi berhasil dihapus!');
-        }
-      }
-    });
-  }
-
-  // Logout handler
-  window.handleLogout = () => {
-    if (confirm('Yakin mau logout?')) {
-      localStorage.removeItem('brocode_admin_logged');
-      location.href = '/';
-    }
-  };
-
-  // Initial fetch and periodic refresh using API (fallback if first IIFE fails)
-  async function refreshFromApi(){
-    try { const resp=await fetch('/api/appointments'); const json=await resp.json(); if(resp.ok) bookings=json.data||[]; } catch(_){}
-    render();
-  }
-  refreshFromApi();
-  setInterval(refreshFromApi, 45000);
-
-})();
+ 

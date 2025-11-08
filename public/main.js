@@ -44,11 +44,20 @@ function setupCustomSelect(sel){
   const wrapper = document.querySelector(sel); if (!wrapper) return;
   const trigger = wrapper.querySelector('.custom-select-trigger');
   const options = wrapper.querySelector('.custom-select-options');
-  const hidden = wrapper.querySelector('input[type="hidden"]');
-  if (!trigger||!options||!hidden) return;
+  // Hidden input could be placed outside wrapper; search nearby as fallback
+  let hidden = wrapper.querySelector('input[type="hidden"]');
+  if (!hidden){
+    const group = wrapper.closest('.form-group');
+    if (group) hidden = group.querySelector('input[type="hidden"]');
+    if (!hidden){
+      if (wrapper.classList.contains('service-select-wrapper')) hidden = document.getElementById('service-type');
+      if (wrapper.classList.contains('capster-select-wrapper')) hidden = document.getElementById('capster-select-input');
+    }
+  }
+  if (!trigger||!options) return;
   trigger.dataset.placeholder = trigger.innerHTML;
   trigger.addEventListener('click', e=>{ e.stopPropagation(); document.querySelectorAll('.custom-select-wrapper.open').forEach(w=>{ if(w!==wrapper) w.classList.remove('open'); }); wrapper.classList.toggle('open'); });
-  options.addEventListener('click', e=>{ const li=e.target.closest('li'); if(!li||li.classList.contains('option-category')) return; hidden.value=li.dataset.value; const name=li.querySelector('.option-name')?.textContent||li.textContent; const price=li.querySelector('.option-price')?.textContent||''; trigger.innerHTML=`<span class="trigger-name">${name}</span>${price?`<span class=\"trigger-price\">${price}</span>`:''}`; trigger.classList.remove('placeholder'); wrapper.classList.remove('open'); });
+  options.addEventListener('click', e=>{ const li=e.target.closest('li'); if(!li||li.classList.contains('option-category')) return; if (hidden) hidden.value=li.dataset.value; const name=li.querySelector('.option-name')?.textContent||li.textContent; const price=li.querySelector('.option-price')?.textContent||''; trigger.innerHTML=`<span class="trigger-name">${name}</span>${price?`<span class=\"trigger-price\">${price}</span>`:''}`; trigger.classList.remove('placeholder'); wrapper.classList.remove('open'); });
 }
 
 function updateBookingLockState(){
@@ -95,7 +104,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (isUser){
       if (loginBtn) loginBtn.style.display='none';
   const profileA = document.createElement('a');
-      profileA.href='/profile.html';
+      profileA.href='/components/profile.html';
       profileA.textContent='PROFILE';
   profileA.className='btn btn-outline nav-profile-btn';
   profileA.style.marginRight = '8px';
@@ -121,7 +130,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (isUser){
         if (mobileLoginLink) mobileLoginLink.style.display='none';
   const profileM = document.createElement('a');
-        profileM.href='/profile.html';
+        profileM.href='/components/profile.html';
         profileM.textContent='PROFILE';
   profileM.className='btn btn-outline mobile-profile-btn';
   profileM.style.marginTop = '10px';
@@ -155,20 +164,200 @@ document.addEventListener('DOMContentLoaded', () => {
   registerModal?.addEventListener('click', e=>{ if(e.target===registerModal) hideModals(); });
   document.addEventListener('keydown', e=>{ if(e.key==='Escape') hideModals(); });
 
+  // Allow login from the booking restricted overlay
+  const openLoginFromBook = document.getElementById('open-login-from-book');
+  if (openLoginFromBook){
+    openLoginFromBook.addEventListener('click', (e)=>{
+      e.preventDefault();
+      showModal(loginModal);
+    });
+  }
+
   // Custom selects
   setupCustomSelect('.service-select-wrapper');
   setupCustomSelect('.capster-select-wrapper');
 
-  // Using static HTML for services & capsters (no fetch).
-  // The custom select handler above will read the existing <li data-value> items
-  // from components/book.html and update the hidden inputs and trigger text.
+  // Populate service and capster from API (Supabase-backed)
+  const formatPrice = (v) => (v!=null && v!=='') ? `Rp${String(v).replace(/\B(?=(\d{3})+(?!\d))/g,'.')}` : '';
+  async function loadServices(){
+    const ul = document.querySelector('.service-select-wrapper .custom-select-options');
+    const trigger = document.querySelector('.service-select-wrapper .custom-select-trigger');
+    const hidden = document.getElementById('service-type');
+    if (!ul || !hidden || !trigger) return;
+    try {
+  const resp = await fetch('/api/service'); // singular per Supabase table name requirement
+      const body = await resp.json();
+      if(!resp.ok) throw new Error(body.error||'Gagal memuat layanan');
+      const items = Array.isArray(body.data)? body.data : [];
+      // Normalisasi tipe layanan dari Supabase (regular / special / lainnya)
+      const groups = items.reduce((acc,s)=>{
+        const raw = String(s.type||'').toLowerCase();
+        let key;
+        if (raw.includes('regular')) key = 'REGULAR TREATMENT';
+        else if (raw.includes('special')) key = 'SPECIAL TREATMENT';
+        else key = 'LAINNYA';
+        (acc[key] = acc[key] || []).push(s);
+        return acc;
+      },{});
+      const order = ['REGULAR TREATMENT','SPECIAL TREATMENT','LAINNYA'];
+      const parts = [];
+      order.forEach(g=>{
+        if (!groups[g] || !groups[g].length) return;
+        parts.push(`<li class="option-category">— ${g} —</li>`);
+        groups[g].forEach(s=>{
+          const price = formatPrice(s.price);
+          parts.push(`<li data-value="${escapeHtml(s.name)}"><span class="option-name">${escapeHtml(s.name)}</span> ${price?`<span class=\"option-price\">${price}</span>`:''}</li>`);
+        });
+      });
+      if (!parts.length) parts.push('<li class="option-category">Tidak ada layanan</li>');
+      ul.innerHTML = parts.join('');
+      // Reset trigger to placeholder
+      trigger.innerHTML = trigger.dataset.placeholder || 'Pilih Jenis Layanan';
+      trigger.classList.add('placeholder');
+      hidden.value = '';
+    } catch(err){ console.error('loadServices', err); }
+  }
+
+  async function loadCapsters(){
+    const ul = document.querySelector('.capster-select-wrapper .custom-select-options');
+    const trigger = document.querySelector('.capster-select-wrapper .custom-select-trigger');
+    const hidden = document.getElementById('capster-select-input');
+    if (!ul || !hidden || !trigger) return;
+    try {
+  const resp = await fetch('/api/capster'); // singular per Supabase table name requirement
+      const body = await resp.json();
+      if(!resp.ok) throw new Error(body.error||'Gagal memuat capster');
+      const items = Array.isArray(body.data)? body.data : [];
+      const li = items.map(c=>{
+        const id = c.id;
+        const name = c.name || '-';
+        const alias = c.alias ? `<em class=\"aka-name\">a.k.a ${escapeHtml(c.alias)}</em>` : '';
+        // Store id as value for FK, keep readable name in text
+        return `<li data-value="${String(id)}" data-name="${escapeHtml(name)}"><span class="option-name">${escapeHtml(name)} ${alias}</span></li>`;
+      });
+      if (!li.length) li.push('<li class="option-category">Tidak ada capster</li>');
+      ul.innerHTML = li.join('');
+      trigger.innerHTML = trigger.dataset.placeholder || 'Pilih Capster (Opsional)';
+      trigger.classList.add('placeholder');
+      hidden.value = '';
+    } catch(err){ console.error('loadCapsters', err); }
+  }
+
+  // Kick off loading lists from server
+  loadServices();
+  loadCapsters();
+
+  // Render Services section cards from Supabase
+  async function renderServicesSection(){
+    const hairGrid = document.getElementById('hair-services-grid');
+    const specialGrid = document.getElementById('special-services-grid');
+    if (!hairGrid && !specialGrid) return; // no services section on this page
+    try {
+      // Helper: fallback fetch direct to Supabase if backend returns kosong/err
+      const fetchDirectSupabase = async () => {
+        try {
+          const url = (window.__SUPABASE_URL || '').replace(/\/$/, '')
+          const key = window.__SUPABASE_ANON_KEY
+          if (!url || !key) return []
+          const r = await fetch(`${url}/rest/v1/service?select=*`, {
+            headers: { 'apikey': key, 'Authorization': `Bearer ${key}` }
+          })
+          if (!r.ok) throw new Error('Supabase REST error')
+          const rows = await r.json()
+          return Array.isArray(rows) ? rows : []
+        } catch (e) {
+          console.warn('Fallback Supabase direct fetch failed:', e && e.message)
+          return []
+        }
+      }
+
+      // Primary: via backend API
+      let items = []
+      try {
+        const resp = await fetch('/api/service')
+        const body = await resp.json()
+        if(!resp.ok) throw new Error(body.error||'Gagal memuat layanan')
+        items = Array.isArray(body.data)? body.data : []
+      } catch (apiErr) {
+        console.warn('API /api/service gagal, mencoba fallback Supabase langsung...', apiErr && apiErr.message)
+        items = await fetchDirectSupabase()
+      }
+
+      if (!items.length) {
+        // Last resort: try direct even if API succeeded but kosong
+        const maybe = await fetchDirectSupabase()
+        if (maybe.length) items = maybe
+      }
+      // Normalisasi tipe agar lebih toleran terhadap variasi penulisan
+      const regular = [];
+      const special = [];
+      items.forEach(s => {
+        const raw = String(s.type||'').toLowerCase();
+        if (raw.includes('regular')) regular.push(s);
+        else if (raw.includes('special')) special.push(s);
+      });
+
+  // Debug log (bisa dihapus nanti jika sudah stabil)
+  console.log('[Services] Total:', items.length, 'Regular:', regular.length, 'Special:', special.length);
+
+      function toCard(s, idx){
+        const price = formatPrice(s.price);
+        const delay = ((idx % 5) + 1) * 0.1;
+        const imgIdx = (idx % 3) + 1; // gunakan aset yang ada untuk placeholder visual
+        const imgSrc = `/assets/capster-${imgIdx}.png`;
+        return `<article class="capster-card fade-in-up" style="animation-delay: ${delay}s" data-service-id="${escapeHtml(String(s.id||''))}">
+          <figure>
+            <img src="${imgSrc}" alt="Ilustrasi Layanan: ${escapeHtml(s.name)}">
+          </figure>
+          <div class="capster-info">
+            <h4>${escapeHtml(s.name)}</h4>
+            <p>${escapeHtml(s.description||'')}</p>
+            <div class="capster-social">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7H14a3.5 3.5 0 0 1 0 7H6"/></svg>
+              <span>${price || 'Hubungi kami'}</span>
+            </div>
+          </div>
+        </article>`;
+      }
+
+      if (hairGrid) {
+        hairGrid.innerHTML = regular.length ? regular.slice(0,2).map((s,i)=>toCard(s,i)).join('') : '<p class="muted">Belum ada layanan Regular Treatment.</p>';
+      }
+      if (specialGrid) {
+        specialGrid.innerHTML = special.length ? special.slice(0,2).map((s,i)=>toCard(s,i)).join('') : '<p class="muted">Belum ada layanan Special Treatment.</p>';
+      }
+    } catch(err){ console.error('renderServicesSection', err); if (hairGrid) hairGrid.innerHTML = '<p class="muted">Gagal memuat Regular Treatment.</p>'; if (specialGrid) specialGrid.innerHTML = '<p class="muted">Gagal memuat Special Treatment.</p>'; }
+  }
+  renderServicesSection();
 
   // Min date today
   const dateInput=document.getElementById('booking-date');
   if (dateInput){ const d=new Date(); const yyyy=d.getFullYear(); const mm=String(d.getMonth()+1).padStart(2,'0'); const dd=String(d.getDate()).padStart(2,'0'); dateInput.min=`${yyyy}-${mm}-${dd}`; }
 
-  // Click-to-book service shortcut
-  document.body.addEventListener('click', e=>{ const item=e.target.closest('.js-book-service'); if(!item) return; const name=item.dataset.serviceName; if(!name) return; const input=document.getElementById('service-type'); if(input) input.value=name; document.getElementById('book')?.scrollIntoView({behavior:'smooth'}); });
+  // Click-to-book service shortcut (updates hidden input + visible trigger)
+  document.body.addEventListener('click', e=>{
+    const item = e.target.closest('.js-book-service');
+    if(!item) return;
+    const name = item.dataset.serviceName;
+    if(!name) return;
+    const input = document.getElementById('service-type');
+    const trigger = document.querySelector('.service-select-wrapper .custom-select-trigger');
+    if (input) input.value = name;
+    if (trigger) {
+      // Try to find the corresponding option to copy price too
+      const opt = document.querySelector(`.service-select-wrapper li[data-value="${CSS.escape(name)}"]`);
+      if (opt) {
+        const optionText = opt.querySelector('.option-name')?.textContent || name;
+        const optionPrice = opt.querySelector('.option-price')?.textContent || '';
+        trigger.innerHTML = `<span class="trigger-name">${escapeHtml(optionText)}</span>${optionPrice ? ` <span class=\"trigger-price\">${escapeHtml(optionPrice)}</span>` : ''}`;
+      } else {
+        trigger.textContent = name;
+      }
+      trigger.classList.remove('placeholder');
+    }
+    try { typeof hideAllModals==='function' && hideAllModals(); } catch(_){}
+    document.getElementById('book')?.scrollIntoView({behavior:'smooth'});
+  });
 
   // Admin init
   if (document.body.classList.contains('admin-page')) initializeAdmin();
@@ -250,15 +439,31 @@ document.addEventListener('DOMContentLoaded', () => {
   const closeHairBtn=document.getElementById('close-hair-modal-btn');
   const showSpecialBtn=document.getElementById('show-special-pricelist-btn');
   const closeSpecialBtn=document.getElementById('close-special-modal-btn');
-  function populatePricelist(){ /* no-op: static content already in HTML */ }
+  async function populatePricelist(modEl, type){
+    if(!modEl) return;
+    try {
+  const resp = await fetch('/api/service'); // singular per Supabase table name requirement
+      const body = await resp.json();
+      if(!resp.ok) throw new Error(body.error||'Gagal memuat layanan');
+      const items = (body.data||[]).filter(s => String(s.type||'').toLowerCase().includes(type));
+      const cols = modEl.querySelectorAll('.pricelist-items');
+      if(!cols.length) return;
+      const chunk = Math.ceil(items.length/2) || 1;
+      const col1 = items.slice(0,chunk);
+      const col2 = items.slice(chunk);
+      function toLi(s){ const price = (s.price!=null && s.price!=='') ? `Rp${String(s.price).replace(/\B(?=(\d{3})+(?!\d))/g,'.')}` : ''; return `<div class="service-item js-book-service" data-service-name="${escapeHtml(s.name)}"><div class="service-info"><h4>${escapeHtml(s.name)}</h4><p>${escapeHtml(s.description||'')}</p></div><div class="price">${price}</div></div>`; }
+      cols[0].innerHTML = col1.length? col1.map(toLi).join('') : '<div class="service-item"><div class="service-info"><h4>Tidak ada layanan</h4></div></div>';
+      if(cols[1]) cols[1].innerHTML = col2.length? col2.map(toLi).join('') : '';
+    } catch(err){ console.error('populatePricelist', err); }
+  }
   function hideAllModals(){ hairModal?.classList.remove('active'); specialModal?.classList.remove('active'); }
   if(showHairBtn&&hairModal&&closeHairBtn){ 
-  showHairBtn.addEventListener('click',()=>{ hairModal.classList.add('active'); }); 
+  showHairBtn.addEventListener('click',()=>{ populatePricelist(hairModal,'regular'); hairModal.classList.add('active'); }); 
     closeHairBtn.addEventListener('click',()=>hairModal.classList.remove('active')); 
     hairModal.addEventListener('click',e=>{ if(e.target===hairModal) hairModal.classList.remove('active'); }); 
   }
   if(showSpecialBtn&&specialModal&&closeSpecialBtn){ 
-  showSpecialBtn.addEventListener('click',()=>{ specialModal.classList.add('active'); }); 
+  showSpecialBtn.addEventListener('click',()=>{ populatePricelist(specialModal,'special'); specialModal.classList.add('active'); }); 
     closeSpecialBtn.addEventListener('click',()=>specialModal.classList.remove('active')); 
     specialModal.addEventListener('click',e=>{ if(e.target===specialModal) specialModal.classList.remove('active'); }); 
   }
@@ -301,17 +506,21 @@ document.addEventListener('DOMContentLoaded', () => {
     if(!validateForm()) return; 
     // Build payload for backend
     const name = document.getElementById('name')?.value.trim();
-    const phone = document.getElementById('phone')?.value.trim();
+    const phoneRaw = document.getElementById('phone')?.value.trim();
     const date = document.getElementById('booking-date')?.value;
     const time = document.getElementById('booking-time')?.value;
     const service = document.getElementById('service-type')?.value;
-  const capsterName = document.getElementById('capster-select-input')?.value || null;
+    const capsterIdStr = document.getElementById('capster-select-input')?.value || '';
   const message = document.getElementById('message')?.value.trim();
     const email = localStorage.getItem('brocode_user_email') || null;
-    // Send capsterName separately; backend will store in auxiliary tables.
-    const payload = { name, email, phone, date, time, service, capsterName, capsterId: null, status: 'pending', notes: message };
+    // Sanitize phone to digits only to satisfy int8 column
+    const phoneDigits = (phoneRaw || '').replace(/[^0-9]/g, '');
+    const phone = phoneDigits ? Number(phoneDigits) : null;
+    const capsterId = capsterIdStr ? Number(capsterIdStr) : null;
+    // Send capster name separately as `capster`; backend will store in appointment and auxiliary tables.
+  const payload = { name, email, phone, date, time, service, capsterId, status: 'pending', notes: message, timestamp: new Date().toISOString() };
     try {
-      const resp = await fetch('/api/appointment', { method:'POST', headers:{ 'Content-Type':'application/json' }, body: JSON.stringify(payload) });
+  const resp = await fetch('/api/appointment', { method:'POST', headers:{ 'Content-Type':'application/json' }, body: JSON.stringify(payload) }); // singular per Supabase table name requirement
       const body = await resp.json();
       if(!resp.ok) throw new Error(body.error || 'Gagal membuat reservasi');
       // Success notification + local cache for profile mirror (optional)
@@ -795,39 +1004,5 @@ if(false){
   });
 
 
-  // ===============================================
-  // --- 14. KLIK UNTUK MEMESAN (Layanan) ---
-  // ===============================================
-  document.body.addEventListener('click', (e) => {
-  const serviceItem = e.target.closest('.js-book-service');
-  if (!serviceItem) return;
-
-  const serviceName = serviceItem.dataset.serviceName;
-  if (!serviceName) return;
-
-  const serviceInput = document.getElementById('service-type');
-  const serviceTrigger = document.querySelector('.service-select-wrapper .custom-select-trigger');
-  const bookSection = document.getElementById('book'); 
-  
-  if (serviceInput && serviceTrigger && bookSection) {
-      serviceInput.value = serviceName;
-      
-      // Cari teks dan harga dari list
-      const optionEl = document.querySelector(`.service-select-wrapper li[data-value="${serviceName}"]`);
-      if (optionEl) {
-        const optionText = optionEl.querySelector('.option-name').textContent;
-        const optionPrice = optionEl.querySelector('.option-price') ? optionEl.querySelector('.option-price').textContent : '';
-        
-        // Update trigger dengan HTML
-        serviceTrigger.innerHTML = `
-          <span class="trigger-name">${optionText}</span>
-          ${optionPrice ? `<span class="trigger-price">${optionPrice}</span>` : ''}
-        `;
-        serviceTrigger.classList.remove('placeholder');
-      }
-
-      hideAllModals();
-      bookSection.scrollIntoView({ behavior: 'smooth' });
-    }
-  });
+  // (Duplicate quick-book listener removed; single handler earlier handles booking shortcut.)
 }

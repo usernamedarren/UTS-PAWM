@@ -48,32 +48,8 @@
               <div class="custom-select-trigger placeholder" tabindex="0">
                 Pilih Jenis Layanan
               </div>
-              <ul class="custom-select-options wide">
-                <div class="options-grid">
-                  <div class="options-column">
-                    <li class="option-category">— HAIR TREATMENT —</li>
-                    <li data-value="Special Hair Trim"><span class="option-name">Special Hair Trim</span> <span class="option-price">Rp70.000</span></li>
-                    <li data-value="Special Hair Trim + Shave"><span class="option-name">Special Hair Trim + Shave</span> <span class="option-price">Rp80.000</span></li>
-                    <li data-value="Special Hair Trim + Creambath"><span class="option-name">Special Hair Trim + Creambath</span> <span class="option-price">Rp120.000</span></li>
-                    <li data-value="Hair Trim"><span class="option-name">Hair Trim</span> <span class="option-price">Rp60.000</span></li>
-                    <li data-value="Hair Trim + Massage"><span class="option-name">Hair Trim + Massage</span> <span class="option-price">Rp65.000</span></li>
-                    <li data-value="Kids Haircut"><span class="option-name">Kids Haircut</span> <span class="option-price">Rp50.000</span></li>
-                    <li data-value="Kids Haircut + Wash"><span class="option-name">Kids Haircut + Wash</span> <span class="option-price">Rp60.000</span></li>
-                    <li data-value="Shaving"><span class="option-name">Shaving</span> <span class="option-price">Rp40.000</span></li>
-                    <li data-value="Creambath"><span class="option-name">Creambath</span> <span class="option-price">Rp70.000</span></li>
-                  </div>
-                  <div class="options-column">
-                    <li class="option-category">— SPECIAL TREATMENT —</li>
-                    <li data-value="THE FELLA"><span class="option-name">THE FELLA (Full Highlight)</span> <span class="option-price">Rp250.000</span></li>
-                    <li data-value="THE BRO"><span class="option-name">THE BRO (Half Coloring)</span> <span class="option-price">Rp250.000</span></li>
-                    <li data-value="THE GUY"><span class="option-name">THE GUY (Full Coloring)</span> <span class="option-price">Rp350.000</span></li>
-                    <li data-value="THE KRIBRO"><span class="option-name">THE KRIBRO (Perming)</span> <span class="option-price">Rp300.000</span></li>
-                    <li data-value="THE MAN"><span class="option-name">THE MAN (Basic Color)</span> <span class="option-price">Rp100.000</span></li>
-                    <li class="option-category">— LAINNYA —</li>
-                    <li data-value="Other"><span class="option-name">Lainnya</span> <span class="option-price"></span></li>
-                  </div>
-                </div>
-              </ul>
+              <!-- Dynamic options populated from Supabase services via /api/services -->
+              <ul class="custom-select-options wide" data-source="supabase"></ul>
             </div>
             <div class="selected-service-price" id="selected-service-price"></div>
             <div class="error-message" id="service-type-error"></div>
@@ -86,13 +62,8 @@
               <div class="custom-select-trigger placeholder" tabindex="0">
                 Pilih Capster (Opsional)
               </div>
-              <ul class="custom-select-options">
-                <li data-value="Fikri"><span class="option-name">Fikri <em class="aka-name">a.k.a Wankrik</em></span></li>
-                <li data-value="Ricky"><span class="option-name">Ricky <em class="aka-name">a.k.a Rickybroo</em></span></li>
-                <li data-value="Angga"><span class="option-name">Angga <em class="aka-name">a.k.a Angga P</em></span></li>
-                <li data-value="Rian"><span class="option-name">Rian <em class="aka-name">a.k.a Rian</em></span></li>
-                <li data-value="Any"><span class="option-name">Siapa Saja</span></li>
-              </ul>
+              <!-- Dynamic capster options from Supabase capster table via /api/capsters -->
+              <ul class="custom-select-options" data-source="supabase"></ul>
             </div>
             <div class="error-message" id="capster-select-error"></div>
           </div>

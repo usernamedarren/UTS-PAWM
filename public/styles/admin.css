@@ -22,10 +22,18 @@ h1{text-align:center;color:var(--text);margin:30px 0;font-size:2.2rem}
 .card h3{margin:0 0 16px;color:#1a1a1a;font-size:1.25rem;border-bottom:3px solid #1a1a1a;padding-bottom:8px;text-align:center;font-weight:900}
 .card p{margin:6px 0;font-size:0.95rem;color:#333}
 .verify-container{display:flex;justify-content:center;align-items:center;margin-top:auto;padding-top:16px;min-height:80px}
-.verify{width:50px;height:50px;background:#d4d4d4;border-radius:50%;display:flex;align-items:center;justify-content:center;border:4px solid #999;cursor:pointer}
-.verify::before{content:'✓';font-size:2rem;color:white;opacity:0;transition:opacity .3s}
-.card.verified .verify{background:#5cb85c;border-color:#4a934a}
-.card.verified .verify::before{opacity:1}
+/* New approve toggle style */
+.approve-toggle{display:inline-flex;align-items:center;gap:10px;cursor:pointer;font-weight:600;font-size:.85rem;user-select:none;background:#fff;padding:8px 14px;border-radius:40px;box-shadow:0 4px 12px rgba(0,0,0,.15);transition:.25s;border:2px solid #ddd}
+.approve-toggle:hover{box-shadow:0 6px 18px rgba(0,0,0,.22);border-color:#bbb}
+.approve-toggle .approve-checkbox{display:none}
+.approve-toggle .checkmark{width:20px;height:20px;border-radius:6px;background:#ccc;display:inline-block;position:relative;transition:.3s}
+.approve-toggle .checkmark::after{content:"";position:absolute;left:5px;top:2px;width:6px;height:12px;border:3px solid #fff;border-top:none;border-left:none;transform:rotate(45deg);opacity:0;transition:.3s}
+.approve-toggle .label-text{letter-spacing:.5px}
+.approve-toggle .approve-checkbox:checked + .checkmark{background:#2ea44f}
+.approve-toggle .approve-checkbox:checked + .checkmark::after{opacity:1}
+.card.verified .approve-toggle{border-color:#2ea44f;background:#2ea44f;color:#fff}
+.card.verified .approve-toggle .checkmark{background:#fff}
+.card.verified .approve-toggle .checkmark::after{border-color:#2ea44f}
 .trash{position:fixed;bottom:30px;right:30px;width:70px;height:70px;background:#dc3545;color:white;border-radius:8px;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 24px rgba(220,53,69,0.4);z-index:99;border:3px solid #fff}
 .trash .trash-icon{position:relative;width:36px;height:36px}
 .trash .trash-lid{width:36px;height:4px;background:#fff;border-radius:2px;position:absolute;top:0}

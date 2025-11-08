@@ -8,23 +8,15 @@
     <div class="service-category-wrapper">
       <h3 class="service-category fade-in-up">
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="3"></circle><path d="M8.12 8.12 12 12"></path><path d="M20 4 8.12 15.88"></path><circle cx="6" cy="18" r="3"></circle><path d="M14.8 14.8 20 20"></path></svg>
-        HAIR TREATMENT
+        REGULAR TREATMENT
       </h3>
-      <div class="services-grid">
-        <article class="service-card fade-in-up" style="animation-delay: 0.1s">
-          <h4>Special Hair Trim</h4>
-          <p>Potong, Cuci, Pijat. Pengalaman grooming premium kami.</p>
-          <div class="price">Rp70.000</div>
-        </article>
-        <article class="service-card fade-in-up" style="animation-delay: 0.2s">
-          <h4>Hair Trim + Shave</h4>
-          <p>Layanan hair trim lengkap dengan cukur tradisional.</p>
-          <div class="price">Rp80.000</div>
-        </article>
+      <!-- Dynamic list from Supabase via /api/services -->
+      <div id="hair-services-grid" class="services-grid" data-source="supabase">
+        <!-- Preview cards will be injected here (2 items max) -->
       </div>
       <div class="services-cta-container fade-in-up">
         <button id="show-hair-pricelist-btn" class="btn btn-primary">
-          Lihat Semua Hair Treatment
+          Lihat Semua Regular Treatment
         </button>
       </div>
     </div>
@@ -34,17 +26,9 @@
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"></path></svg>
         SPECIAL TREATMENT
       </h3>
-      <div class="services-grid">
-        <article class="service-card fade-in-up" style="animation-delay: 0.1s">
-          <h4>THE FELLA</h4>
-          <p>Full Highlight. Ubah penampilan Anda dengan pewarnaan profesional.</p>
-          <div class="price">Rp250.000</div>
-        </article>
-        <article class="service-card fade-in-up" style="animation-delay: 0.2s">
-          <h4>THE KRIBRO</h4>
-          <p>Perming. Dapatkan tekstur dan volume yang Anda inginkan.</p>
-          <div class="price">Rp300.000</div>
-        </article>
+      <!-- Dynamic list from Supabase via /api/services -->
+      <div id="special-services-grid" class="services-grid" data-source="supabase">
+        <!-- Preview cards will be injected here (2 items max) -->
       </div>
       <div class="services-cta-container fade-in-up">
         <button id="show-special-pricelist-btn" class="btn btn-primary">

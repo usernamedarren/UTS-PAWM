@@ -198,11 +198,19 @@ for (const sec of sections) {
     })
 }
 
-app.listen(PORT, () => {
-    console.log(`Server has started on port: ${PORT}`)
-})
+// In Vercel serverless, we don't start a listener. Vercel sets VERCEL=1.
+if (!process.env.VERCEL) {
+    app.listen(PORT, () => {
+        console.log(`Server has started on port: ${PORT}`)
+    })
+}
 
 // Setelah semua server-side rendering route dipasang, baru serve static assets.
 // Ini memastikan request ke '/' memakai assemblePage, bukan file mentah.
 app.use(express.static(path.join(__dirname, '../public')))
 app.use('/assets', express.static(path.join(__dirname, '../public/assets')))
+
+// Export handler for Vercel Serverless Functions
+export default function handler(req, res) {
+    return app(req, res)
+}
