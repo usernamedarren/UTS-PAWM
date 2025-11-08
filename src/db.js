@@ -3,16 +3,8 @@ dotenv.config()
 
 import bcrypt from 'bcryptjs'
 
-// Prefer global fetch (Node 18+). Fallback to dynamic import of node-fetch only if needed.
-let fetchImpl = globalThis.fetch
-if (!fetchImpl) {
-  try {
-    const mod = await import('node-fetch')
-    fetchImpl = mod.default ?? mod
-  } catch (e) {
-    fetchImpl = null
-  }
-}
+// Node 18+ provides global fetch. If missing (older runtime), throw an explicit error instead of dynamic import.
+const fetchImpl = globalThis.fetch || (() => { throw new Error('fetch API not available: please use Node 18+ or add a fetch polyfill.') })()
 
 // We are Supabase-only now: remove Postgres pool logic.
 const SUPABASE_URL = process.env.SUPABASE_URL || null
