@@ -25,18 +25,6 @@ Brocode Barbershop adalah aplikasi web reservasi barbershop yang dikembangkan un
 | Admin       | `admin@gmail.com`       | `1234` |
 | Pengguna    | `amudi@gmail.com`        | `iyekan`         | 
 
-## Struktur Direktori
-src/
-├── index.html          → Halaman login & landing
-├── admin.html          → Dashboard admin
-├── profile.html        → Profil & riwayat reservasi user
-├── main.js             → Logika utama, splash screen, autentikasi
-├── components/
-│   └── splash.html     → Komponen splash screen
-├── logo.png            → Logo resmi Brocode
-└── README.md           → Dokumentasi 
-
-
 ## Cara Menjalankan
 akses ke link: ii3140-uts-pawm-yyvw.vercel.app
 
